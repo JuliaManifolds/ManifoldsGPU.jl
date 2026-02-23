@@ -1,0 +1,25 @@
+name = "ManifoldsGPU"
+uuid = "007d1224-8888-47ee-87d0-87e096ff9b5b"
+version = "0.1.0-DEV"
+authors = ["Mateusz Baran <mateuszbaran89@gmail.com> and contributors"]
+
+[deps]
+ManifoldDiff = "af67fdf4-a580-4b9f-bbec-742ef357defd"
+Manifolds = "1cead3c2-87b3-11e9-0ccd-23c62b72b94e"
+ManifoldsBase = "3362f125-f0bb-47a3-aa74-596ffd7ef2fb"
+
+[weakdeps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+
+[compat]
+CUDA = "5.9.6"
+ManifoldDiff = "0.4.5"
+Manifolds = "0.11.12"
+ManifoldsBase = "2.3.1"
+julia = "1.10.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
