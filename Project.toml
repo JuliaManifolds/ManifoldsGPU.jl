@@ -4,12 +4,16 @@ version = "0.1.0-DEV"
 authors = ["Mateusz Baran <mateuszbaran89@gmail.com> and contributors"]
 
 [deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 ManifoldDiff = "af67fdf4-a580-4b9f-bbec-742ef357defd"
 Manifolds = "1cead3c2-87b3-11e9-0ccd-23c62b72b94e"
 ManifoldsBase = "3362f125-f0bb-47a3-aa74-596ffd7ef2fb"
 
 [weakdeps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+
+[extensions]
+ManifoldsGPUCUDAExt = "CUDA"
 
 [compat]
 CUDA = "5.9.6"
@@ -19,7 +23,8 @@ ManifoldsBase = "2.3.1"
 julia = "1.10.10"
 
 [extras]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "CUDA"]
