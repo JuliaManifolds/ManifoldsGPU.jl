@@ -69,3 +69,44 @@ function ManifoldsBase.retract_fused!(
     ) where {T <: Real}
     return ManifoldsBase.retract_qr_fused!(M, q, p, X, t)
 end
+
+function ManifoldsBase.retract_polar_fused!(
+        ::PowerManifold{ℝ, <:Stiefel{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+        t::Number,
+    ) where {T <: Real}
+    q .= p .+ t .* X
+
+    try
+        U, _, V = CUDA.CUSOLVER.gesvdj!('V', q)
+        k = min(size(U, 2), size(V, 1))
+        U_thin = @view U[:, 1:k, :]
+        q .= CUDA.CUBLAS.gemm_strided_batched('N', 'T', U_thin, V)
+    catch e
+        if e isa ArgumentError
+            batch = size(q, 3)
+            for i in 1:batch
+                q_i = copy(@view q[:, :, i])
+                s = svd!(q_i)
+                @view(q[:, :, i]) .= s.U * s.Vt
+            end
+        else
+            rethrow()
+        end
+    end
+
+    return q
+end
+
+function ManifoldsBase.retract_fused!(
+        M::PowerManifold{ℝ, <:Stiefel{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+        t::Number,
+        ::PolarRetraction,
+    ) where {T <: Real}
+    return ManifoldsBase.retract_polar_fused!(M, q, p, X, t)
+end
