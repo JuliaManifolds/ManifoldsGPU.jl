@@ -147,8 +147,6 @@ function main()
     println()
     benchmark_stiefel_retraction(ExponentialRetraction(); n = n, k = k, batch = batch, samples = samples)
     println()
-    benchmark_stiefel_retraction(QRRetraction(); n = n, k = k, batch = batch, samples = samples)
-    println()
     return benchmark_stiefel_retraction(PolarRetraction(); n = n, k = k, batch = batch, samples = samples)
 end
 
