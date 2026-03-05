@@ -9,6 +9,7 @@ include("helpers.jl")
 
 include("Stiefel.jl")
 include("Grassmann.jl")
+include("Sphere.jl")
 
 
 end
