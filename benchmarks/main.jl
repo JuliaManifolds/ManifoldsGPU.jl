@@ -45,7 +45,7 @@ end
 function _print_results(; name::String, n::Int, k::Int, batch::Int, samples::Int, cpu_all, gpu_all, cpu_ms::Float64, gpu_ms::Float64, relerr, relerr_label::String, extra_lines::Vector{String} = String[])
     speedup = cpu_ms / gpu_ms
 
-    println("=== ManifoldsGPU benchmark: $name on PowerManifold(Stiefel($n, $k), $batch) ===")
+    println("=== ManifoldsGPU benchmark: $name on PowerManifold($n×$k, batch=$batch) ===")
     println("Element type: Float32")
     for line in extra_lines
         println(line)
@@ -133,6 +133,37 @@ function benchmark_stiefel_retraction(method::AbstractRetractionMethod; n::Int =
     )
 end
 
+function benchmark_grassmann_exp(; n::Int = 8, k::Int = 4, batch::Int = 2048,
+                                    scale::Float32 = 0.25f0, samples::Int = 6, seed::Int = 1234)
+    Random.seed!(seed)
+    M = Grassmann(n, k)
+    MP = PowerManifold(M, batch)
+
+    p_cpu = Float32.(rand(MP))
+    X_cpu = scale .* Float32.(rand(MP; vector_at = p_cpu))
+    p_gpu = CuArray(p_cpu)
+    X_gpu = CuArray(X_cpu)
+
+    cpu_ms, cpu_all, gpu_ms, gpu_all = _benchmark_cpu_gpu(
+        () -> exp(MP, p_cpu, X_cpu),
+        () -> CUDA.@sync exp(MP, p_gpu, X_gpu);
+        samples = samples,
+    )
+
+    relerr = begin
+        Y_cpu = exp(MP, p_cpu, X_cpu)
+        Y_gpu = Array(CUDA.@sync exp(MP, p_gpu, X_gpu))
+        norm(Y_cpu .- Y_gpu) / max(norm(Y_cpu), eps(Float32))
+    end
+
+    return _print_results(
+        name = "Grassmann exp",
+        n = n, k = k, batch = batch, samples = samples,
+        cpu_all = cpu_all, gpu_all = gpu_all, cpu_ms = cpu_ms, gpu_ms = gpu_ms,
+        relerr = relerr, relerr_label = "||Ycpu - Ygpu||/||Ycpu||",
+    )
+end
+
 function _parse_arg(i::Int, default)
     return length(ARGS) >= i ? parse(typeof(default), ARGS[i]) : default
 end
@@ -147,7 +178,9 @@ function main()
     println()
     benchmark_stiefel_retraction(ExponentialRetraction(); n = n, k = k, batch = batch, samples = samples)
     println()
-    return benchmark_stiefel_retraction(PolarRetraction(); n = n, k = k, batch = batch, samples = samples)
+    benchmark_stiefel_retraction(PolarRetraction(); n = n, k = k, batch = batch, samples = samples)
+    println()
+    return benchmark_grassmann_exp(; n = 8, k = 4, batch = batch, samples = samples)
 end
 
 main()

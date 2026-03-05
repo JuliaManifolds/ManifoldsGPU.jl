@@ -8,6 +8,7 @@ using CUDA
 include("helpers.jl")
 
 include("Stiefel.jl")
+include("Grassmann.jl")
 
 
 end
