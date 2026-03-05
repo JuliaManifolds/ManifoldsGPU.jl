@@ -7,9 +7,7 @@
 
 using JLArrays
 using GPUArrays
-using ManifoldsBase, Manifolds
-using Random
-using Test
+# Note: ManifoldsBase, Manifolds, Random, Test are loaded by runtests.jl before this file is included.
 
 # Allow scalar indexing for JLArray: the CPU fallback implementations in
 # Manifolds.jl use scalar operations (e.g. hvcat in StiefelEuclideanMetric.jl).
@@ -22,6 +20,8 @@ GPUArrays.allowscalar(true)
     M = Stiefel(4, 2)
     MP = PowerManifold(M, 5)
 
+    # Seeds 42-44 are used here; cuda_tests.jl uses 42, 43, 45-48.
+    # Random.seed! always resets global RNG so cross-file reuse is safe but noted.
     Random.seed!(42)
     p = rand(MP)
     X = rand(MP; vector_at = p)

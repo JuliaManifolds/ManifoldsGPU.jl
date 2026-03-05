@@ -4,6 +4,8 @@ using CUDA
     # Write your tests here.
 
     @testset "Stiefel" begin
+        Random.seed!(45)
+
         M = Stiefel(4, 2)
         MP = PowerManifold(M, 5)
 
@@ -14,7 +16,8 @@ using CUDA
         p_cu = CuArray(p)
         X_cu = CuArray(X)
         Y_cu = exp(MP, p_cu, X_cu)
-        @test isapprox(MP, p, Array(Y_cu), Y; atol = 1.0e-10)
+        @test is_point(MP, Array(Y_cu))
+        @test isapprox(MP, p, Array(Y_cu), Y; atol = 2.0e-14, rtol = 2.0e-14)
     end
 
     @testset "Stiefel batched stress" begin
@@ -126,6 +129,8 @@ using CUDA
             q_cu_h = Array(q_cu)
 
             @test is_point(MP, q_cu_h)
+            # CPU fallback via serial svd! (used when gesvdj! fails for large matrices)
+            # accumulates slightly more rounding error than the batched GPU path
             @test isapprox(MP, p, q_cu_h, q; atol = 2.0e-12, rtol = 2.0e-12)
         end
     end
