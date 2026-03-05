@@ -12,6 +12,7 @@ include("Grassmann.jl")
 include("Sphere.jl")
 include("Euclidean.jl")
 include("UnitaryMatrices.jl")
+include("SPD.jl")
 
 
 end
