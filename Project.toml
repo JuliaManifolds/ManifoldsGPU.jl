@@ -4,10 +4,13 @@ version = "0.1.0-DEV"
 authors = ["Mateusz Baran <mateuszbaran89@gmail.com> and contributors"]
 
 [deps]
+GPUArrays = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"
+JLArrays = "27aeb0d3-9eb9-45fb-866b-73c2ecf80fcb"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 ManifoldDiff = "af67fdf4-a580-4b9f-bbec-742ef357defd"
 Manifolds = "1cead3c2-87b3-11e9-0ccd-23c62b72b94e"
 ManifoldsBase = "3362f125-f0bb-47a3-aa74-596ffd7ef2fb"
+Runic = "62bfec6d-59d7-401d-8490-b29ee721c001"
 
 [weakdeps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
@@ -17,15 +20,20 @@ ManifoldsGPUCUDAExt = "CUDA"
 
 [compat]
 CUDA = "5.9.6"
+GPUArrays = "11"
+JLArrays = "0.3"
 ManifoldDiff = "0.4.5"
 Manifolds = "0.11.12"
 ManifoldsBase = "2.3.1"
+Runic = "1.5.1"
 julia = "1.10.10"
 
 [extras]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+GPUArrays = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"
+JLArrays = "27aeb0d3-9eb9-45fb-866b-73c2ecf80fcb"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "CUDA", "Random"]
+test = ["Test", "CUDA", "GPUArrays", "JLArrays", "Random"]
