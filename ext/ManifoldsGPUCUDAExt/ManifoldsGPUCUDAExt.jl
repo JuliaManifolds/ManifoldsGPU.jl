@@ -9,5 +9,6 @@ include("helpers.jl")
 
 include("Stiefel.jl")
 
+include("GeneralUnitaryMatrices.jl")
 
 end
