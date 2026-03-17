@@ -3,13 +3,9 @@
 #
 
 using Pkg
-using Plots, RecipesBase, Manifolds, ManifoldsBase, Documenter, PythonPlot
+using Manifolds, ManifoldsBase, Documenter
 using ManifoldsGPU
 using DocumenterCitations, DocumenterInterLinks
-# required for loading methods that handle differential equation solving
-# required for loading the manifold tests functions
-using Test
-ENV["GKSwstype"] = "100"
 
 # (e) add CONTRIBUTING.md and NEWS.md to docs
 
