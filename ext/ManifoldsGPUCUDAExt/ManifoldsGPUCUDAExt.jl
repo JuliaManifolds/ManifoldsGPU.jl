@@ -5,7 +5,7 @@ using ManifoldsBase
 
 using CUDA
 
-import ManifoldsGPU: _matrix_log_gpu, matrix_exp_gpu
+import ManifoldsGPU: _matrix_log_gpu, _matrix_exp_gpu
 
 include("helpers.jl")
 
