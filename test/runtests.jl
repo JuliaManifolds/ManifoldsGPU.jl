@@ -13,6 +13,7 @@ using GPUArrays
         using JLArrays
         include(joinpath(@__DIR__, "jlarray", "test_stiefel.jl"))
         include(joinpath(@__DIR__, "jlarray", "test_general_unitary_matrices.jl"))
+        include(joinpath(@__DIR__, "jlarray", "test_grassmann.jl"))
     end
 
     # CUDA tests (requires GPU hardware)
