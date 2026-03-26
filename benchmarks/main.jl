@@ -6,31 +6,20 @@
 #   julia --project benchmarks/GeneralUnitaryMatrices.jl [n] [batch] [samples]
 
 include(joinpath(@__DIR__, "utils.jl"))
-include(joinpath(@__DIR__, "GeneralUnitaryMatrices.jl"))
 
-function benchmark_stiefel_retractions(; n::Int, k::Int, batch::Int, scale::Float32, t::Float32, samples::Int, seed::Int)
-    data = _setup_data(
-        Stiefel(n, k);
-        batch = batch,
-        scale = scale,
-        seed = seed,
-        point_type = Float32,
-        use_power_manifold = true,
-    )
-
-    MB = data.MB
-    manifold_label = "PowerManifold(Stiefel($n, $k), $batch)"
+function _benchmark_extra_retractions(name::String, M; batch::Int, scale::Float32, t::Float32, samples::Int, seed::Int, point_type, methods)
+    data = _setup_data(M; batch = batch, scale = scale, seed = seed, point_type = point_type, use_power_manifold = true)
+    manifold_label = "PowerManifold($name, $batch)"
     results = NamedTuple[]
 
-    println("=== Stiefel retraction benchmarks ===")
+    println("=== $name retraction benchmarks ===")
     println("Point element type: $(eltype(data.p_cpu))")
     println()
 
-    push!(results, _benchmark_retraction(ExponentialRetraction(); MP = MB, p_cpu = data.p_cpu, X_cpu = data.X_cpu, p_gpu = data.p_gpu, X_gpu = data.X_gpu, t = t, samples = samples, manifold_label = manifold_label))
-    println()
-
-    push!(results, _benchmark_retraction(PolarRetraction(); MP = MB, p_cpu = data.p_cpu, X_cpu = data.X_cpu, p_gpu = data.p_gpu, X_gpu = data.X_gpu, t = t, samples = samples, manifold_label = manifold_label))
-    println()
+    for method in methods
+        push!(results, _benchmark_retraction(method; MP = data.MB, p_cpu = data.p_cpu, X_cpu = data.X_cpu, p_gpu = data.p_gpu, X_gpu = data.X_gpu, t = t, samples = samples, manifold_label = manifold_label))
+        println()
+    end
 
     return results
 end
@@ -53,13 +42,15 @@ function main()
 
     append!(all_results, benchmark_manifold("Sphere($(n - 1))", Sphere(n - 1); batch = batch, scale = scale, samples = samples, seed = seed + 1, point_type = Float32))
 
-    append!(all_results, benchmark_rotations(; n = n, batch = batch, scale = scale, t = t, samples = samples, seed = seed + 2))
+    append!(all_results, benchmark_manifold("Rotations($n)", Rotations(n); batch = batch, scale = scale, samples = samples, seed = seed + 2, point_type = Float32))
 
-    append!(all_results, benchmark_unitary(; n = n, batch = batch, scale = scale, samples = samples, seed = seed + 3))
+    append!(all_results, _benchmark_extra_retractions("Rotations($n)", Rotations(n); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 2, point_type = Float32, methods = [PolarRetraction()]))
+
+    append!(all_results, benchmark_manifold("UnitaryMatrices($n)", UnitaryMatrices(n); batch = batch, scale = scale, samples = samples, seed = seed + 3, point_type = ComplexF32))
 
     append!(all_results, benchmark_manifold("Grassmann($n, $k)", Grassmann(n, k); batch = batch, scale = scale, samples = samples, seed = seed + 4, point_type = Float32, exp_error_fn = _subspace_error))
 
-    append!(all_results, benchmark_stiefel_retractions(; n = n, k = k, batch = batch, scale = scale, t = t, samples = samples, seed = seed + 5))
+    append!(all_results, _benchmark_extra_retractions("Stiefel($n, $k)", Stiefel(n, k); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 5, point_type = Float32, methods = [ExponentialRetraction(), PolarRetraction()]))
 
     markdown_table = generate_markdown_summary_table(all_results)
     println("=== Markdown summary table ===")
