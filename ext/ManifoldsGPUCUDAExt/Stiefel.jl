@@ -56,26 +56,7 @@ function ManifoldsBase.retract_polar_fused!(
         t::Number,
     ) where {T <: Real}
     q .= p .+ t .* X
-
-    try
-        U, _, V = CUDA.CUSOLVER.gesvdj!('V', q)
-        k = min(size(U, 2), size(V, 1))
-        U_thin = @view U[:, 1:k, :]
-        q .= CUDA.CUBLAS.gemm_strided_batched('N', 'T', U_thin, V)
-    catch e
-        if e isa ArgumentError
-            batch = size(q, 3)
-            for i in 1:batch
-                q_i = copy(@view q[:, :, i])
-                s = svd!(q_i)
-                @view(q[:, :, i]) .= s.U * s.Vt
-            end
-        else
-            rethrow()
-        end
-    end
-
-    return q
+    return _polar_project_gpu!(q)
 end
 
 function ManifoldsBase.retract_fused!(

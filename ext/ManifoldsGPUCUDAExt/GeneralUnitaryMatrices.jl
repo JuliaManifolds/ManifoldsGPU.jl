@@ -39,24 +39,7 @@ function ManifoldsBase.retract_polar_fused!(
 
     # NOTE: This fallback block is intentionally non-differentiable.
     # retract! functions are not differentiated through directly.
-    try
-        U, _, V = CUDA.CUSOLVER.gesvdj!('V', q)
-        q .= CUDA.CUBLAS.gemm_strided_batched('N', 'C', U, V)
-    catch e
-        if e isa ArgumentError
-            # CPU fallback: gesvdj! fails for matrices larger than supported size
-            batch = size(q, 3)
-            for i in 1:batch
-                q_i = copy(@view q[:, :, i])
-                s = svd!(q_i)
-                @view(q[:, :, i]) .= s.U * s.Vt
-            end
-        else
-            rethrow()
-        end
-    end
-
-    return q
+    return _polar_project_gpu!(q)
 end
 
 function ManifoldsBase.retract_fused!(
@@ -88,24 +71,7 @@ function ManifoldsBase.project!(
 
     # NOTE: This fallback block is intentionally non-differentiable.
     # project! for points is not differentiated through directly.
-    try
-        U, _, V = CUDA.CUSOLVER.gesvdj!('V', q)
-        q .= CUDA.CUBLAS.gemm_strided_batched('N', 'C', U, V)
-    catch e
-        if e isa ArgumentError
-            # CPU fallback: gesvdj! fails for matrices larger than supported size
-            batch = size(q, 3)
-            for i in 1:batch
-                q_i = copy(@view q[:, :, i])
-                s = svd!(q_i)
-                @view(q[:, :, i]) .= s.U * s.Vt
-            end
-        else
-            rethrow()
-        end
-    end
-
-    return q
+    return _polar_project_gpu!(q)
 end
 
 function ManifoldsBase.project!(
