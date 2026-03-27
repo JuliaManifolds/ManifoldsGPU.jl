@@ -158,3 +158,30 @@ function _matrix_log_gpu(A::CuArray{T, 3}) where {T <: Real}
     logAc = _matrix_log_gpu(Ac)
     return real.(logAc)
 end
+
+# Batched SVD: gesvdj! (exact, m,n ≤ 32) with gesvda! fallback (approximate, no size limit).
+# gesvdj! returns full U (m×m), gesvda! returns thin U (m×k) — use U[:, 1:k, :] for both.
+function _batched_svd_gpu(A::CuArray{T, 3}) where {T}
+    try
+        return CUDA.CUSOLVER.gesvdj!('V', copy(A))
+    catch e
+        e isa ArgumentError || rethrow()
+        return CUDA.CUSOLVER.gesvda!('V', copy(A))
+    end
+end
+
+# In-place polar orthogonalization: q ← U * V' from SVD of q.
+# Same gesvdj!/gesvda! fallback as _batched_svd_gpu.
+function _polar_project_gpu!(q::CuArray{T, 3}) where {T}
+    try
+        U, _, V = CUDA.CUSOLVER.gesvdj!('V', q)
+        k = min(size(U, 2), size(V, 1))
+        U_thin = @view U[:, 1:k, :]
+        q .= CUDA.CUBLAS.gemm_strided_batched('N', 'C', U_thin, V)
+    catch e
+        e isa ArgumentError || rethrow()
+        U, _, V = CUDA.CUSOLVER.gesvda!('V', q)
+        q .= CUDA.CUBLAS.gemm_strided_batched('N', 'C', U, V)
+    end
+    return q
+end
