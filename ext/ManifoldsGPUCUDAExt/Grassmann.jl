@@ -40,3 +40,45 @@ function ManifoldsBase.exp!(
 
     return q
 end
+
+function ManifoldsBase.project!(
+        ::PowerManifold{ℝ, <:Grassmann{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        Y::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+    ) where {T <: Real}
+    A = CUDA.CUBLAS.gemm_strided_batched('C', 'N', p, X)    # p' * X
+    Y .= X .- CUDA.CUBLAS.gemm_strided_batched('N', 'N', p, A)  # X - p * (p' * X)
+    return Y
+end
+
+function ManifoldsBase.project!(
+        ::PowerManifold{ℝ, <:Grassmann{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+    ) where {T <: Real}
+    q .= p
+    return _polar_project_gpu!(q)
+end
+
+function ManifoldsBase.retract_polar_fused!(
+        ::PowerManifold{ℝ, <:Grassmann{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+        t::Number,
+    ) where {T <: Real}
+    q .= p .+ t .* X
+    return _polar_project_gpu!(q)
+end
+
+function ManifoldsBase.retract_fused!(
+        M::PowerManifold{ℝ, <:Grassmann{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+        t::Number,
+        ::PolarRetraction,
+    ) where {T <: Real}
+    return ManifoldsBase.retract_polar_fused!(M, q, p, X, t)
+end

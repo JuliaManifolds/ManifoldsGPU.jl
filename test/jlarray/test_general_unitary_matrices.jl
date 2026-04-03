@@ -69,4 +69,49 @@ using GPUArrays
             @test isapprox(q_jl_h, q_cpu; atol = 2.0e-14, rtol = 2.0e-14)
         end
     end
+
+    # Grassmann project! tangent (Float64)
+    @testset "Grassmann project tangent Float64" begin
+        Random.seed!(45)
+
+        M = Grassmann(6, 3)
+
+        for _ in 1:3
+            p = rand(M)
+            X = randn(6, 3)
+            Y_cpu = similar(X)
+            project!(M, Y_cpu, p, X)
+
+            p_jl = JLArray(p)
+            X_jl = JLArray(X)
+            Y_jl = similar(X_jl)
+            project!(M, Y_jl, p_jl, X_jl)
+            Y_jl_h = Array(Y_jl)
+
+            @test is_vector(M, p, Y_jl_h; atol = 2.0e-14)
+            @test isapprox(Y_jl_h, Y_cpu; atol = 2.0e-14, rtol = 2.0e-14)
+        end
+    end
+
+    # Grassmann project! point (Float64)
+    @testset "Grassmann project point Float64" begin
+        Random.seed!(46)
+
+        M = Grassmann(6, 3)
+
+        for _ in 1:3
+            p = rand(M)
+            p_noisy = p .+ 0.01 .* randn(size(p)...)
+            q_cpu = similar(p)
+            project!(M, q_cpu, p_noisy)
+
+            p_noisy_jl = JLArray(p_noisy)
+            q_jl = similar(p_noisy_jl)
+            project!(M, q_jl, p_noisy_jl)
+            q_jl_h = Array(q_jl)
+
+            @test is_point(M, q_jl_h)
+            @test isapprox(q_jl_h, q_cpu; atol = 2.0e-14, rtol = 2.0e-14)
+        end
+    end
 end

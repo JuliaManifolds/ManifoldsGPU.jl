@@ -50,6 +50,8 @@ function main()
 
     append!(all_results, benchmark_manifold("Grassmann($n, $k)", Grassmann(n, k); batch = batch, scale = scale, samples = samples, seed = seed + 4, point_type = Float32, exp_error_fn = _subspace_error))
 
+    append!(all_results, _benchmark_extra_retractions("Grassmann($n, $k)", Grassmann(n, k); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 4, point_type = Float32, methods = [PolarRetraction()]))
+
     append!(all_results, _benchmark_extra_retractions("Stiefel($n, $k)", Stiefel(n, k); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 5, point_type = Float32, methods = [ExponentialRetraction(), PolarRetraction()]))
 
     markdown_table = generate_markdown_summary_table(all_results)
