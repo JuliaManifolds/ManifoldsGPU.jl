@@ -91,7 +91,8 @@ function ManifoldsBase.inverse_retract_polar!(
     ) where {T <: Real}
     A = CUDA.CUBLAS.gemm_strided_batched('C', 'N', p, q)    # p'q, k×k×batch
     Ainv = _batched_inv_gpu(A)                                # inv(p'q)
-    X .= CUDA.CUBLAS.gemm_strided_batched('N', 'N', q, Ainv) .- p
+    X .= .-p
+    CUDA.CUBLAS.gemm_strided_batched!('N', 'N', one(T), q, Ainv, one(T), X)
     return X
 end
 
@@ -123,7 +124,7 @@ function ManifoldsBase.log!(
     # Step 3: X = U * diag(atan(S)) * V'
     S_atan = reshape(atan.(S), 1, k, batch)
     U_atan = U_thin .* S_atan
-    X .= CUDA.CUBLAS.gemm_strided_batched('N', 'C', U_atan, V)
+    CUDA.CUBLAS.gemm_strided_batched!('N', 'C', one(T), U_atan, V, zero(T), X)
 
     return X
 end
@@ -153,8 +154,9 @@ function ManifoldsBase.parallel_transport_direction!(
     core = U_thin .* cos.(S_col) .- pV .* sin.(S_col)              # n×k×batch
 
     # Z = core * (U'X) + X - U*(U'X)
-    Z .= CUDA.CUBLAS.gemm_strided_batched('N', 'N', core, UtX) .+
-        X .- CUDA.CUBLAS.gemm_strided_batched('N', 'N', U_thin, UtX)
+    Z .= X
+    CUDA.CUBLAS.gemm_strided_batched!('N', 'N', one(T), core, UtX, one(T), Z)
+    CUDA.CUBLAS.gemm_strided_batched!('N', 'N', -one(T), U_thin, UtX, one(T), Z)
 
     return Z
 end
