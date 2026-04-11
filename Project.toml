@@ -19,7 +19,7 @@ CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 ManifoldsGPUCUDAExt = "CUDA"
 
 [compat]
-CUDA = "5.9.6"
+CUDA = "5.9.6, 6"
 GPUArrays = "11"
 JLArrays = "0.3"
 ManifoldDiff = "0.4.5"
