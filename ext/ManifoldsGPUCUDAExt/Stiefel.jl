@@ -48,6 +48,28 @@ function ManifoldsBase.norm(
     return sqrt(dot(X, X))
 end
 
+function ManifoldsBase.project!(
+        ::PowerManifold{ℝ, <:Stiefel{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+    ) where {T <: Real}
+    q .= p
+    return _polar_project_gpu!(q)
+end
+
+function ManifoldsBase.project!(
+        ::PowerManifold{ℝ, <:Stiefel{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        Y::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+    ) where {T <: Real}
+    A = CUDA.CUBLAS.gemm_strided_batched('C', 'N', p, X)    # p'X, k×k×batch
+    sym = A .+ permutedims(A, (2, 1, 3))                     # A + A'
+    Y .= X
+    CUDA.CUBLAS.gemm_strided_batched!('N', 'N', T(-0.5), p, sym, one(T), Y)
+    return Y
+end
+
 function ManifoldsBase.retract_polar_fused!(
         ::PowerManifold{ℝ, <:Stiefel{ℝ}, <:Tuple, ArrayPowerRepresentation},
         q::CuArray{T, 3},
