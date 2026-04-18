@@ -53,6 +53,29 @@ function ManifoldsBase.retract_fused!(
     return ManifoldsBase.retract_polar_fused!(M, q, p, X, t)
 end
 
+function ManifoldsBase.retract_qr_fused!(
+        ::PowerManifold{<:Any, <:Manifolds.GeneralUnitaryMatrices, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+        t::Number,
+    ) where {T <: Number}
+    q .= p
+    CUDA.CUBLAS.gemm_strided_batched!('N', 'N', T(t), p, X, one(T), q)
+    return _cholesky_qr_gpu!(q)
+end
+
+function ManifoldsBase.retract_fused!(
+        M::PowerManifold{<:Any, <:Manifolds.GeneralUnitaryMatrices, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+        t::Number,
+        ::QRRetraction,
+    ) where {T <: Number}
+    return ManifoldsBase.retract_qr_fused!(M, q, p, X, t)
+end
+
 function ManifoldsBase.project!(
         ::PowerManifold{
             <:Any,

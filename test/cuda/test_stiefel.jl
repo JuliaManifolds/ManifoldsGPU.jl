@@ -222,6 +222,52 @@
         @test isapprox(n_gpu, n_cpu; atol = 1.0f-4, rtol = 1.0f-4)
     end
 
+    @testset "retract_qr_fused Float64" begin
+        Random.seed!(57)
+
+        M = Stiefel(8, 4)
+        MP = PowerManifold(M, 64)
+        t = 0.3
+
+        p = rand(MP)
+        X = rand(MP; vector_at = p)
+
+        q = similar(p)
+        ManifoldsBase.retract_fused!(MP, q, p, X, t, QRRetraction())
+
+        p_cu = CuArray(p)
+        X_cu = CuArray(X)
+        q_cu = similar(p_cu)
+        ManifoldsBase.retract_fused!(MP, q_cu, p_cu, X_cu, t, QRRetraction())
+        q_cu_h = Array(q_cu)
+
+        @test is_point(MP, q_cu_h)
+        @test isapprox(q_cu_h, q; atol = 2.0e-14, rtol = 2.0e-14)
+    end
+
+    @testset "retract_qr_fused Float32" begin
+        Random.seed!(58)
+
+        M = Stiefel(8, 4)
+        MP = PowerManifold(M, 64)
+        t = Float32(0.3)
+
+        p = Float32.(rand(MP))
+        X = Float32.(rand(MP; vector_at = p))
+
+        q = similar(p)
+        ManifoldsBase.retract_fused!(MP, q, p, X, t, QRRetraction())
+
+        p_cu = CuArray(p)
+        X_cu = CuArray(X)
+        q_cu = similar(p_cu)
+        ManifoldsBase.retract_fused!(MP, q_cu, p_cu, X_cu, t, QRRetraction())
+        q_cu_h = Array(q_cu)
+
+        @test is_point(MP, q_cu_h)
+        @test isapprox(q_cu_h, q; atol = 2.0f-5, rtol = 2.0f-5)
+    end
+
     @testset "project! tangent Float64" begin
         Random.seed!(78)
 

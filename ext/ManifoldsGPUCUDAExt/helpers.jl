@@ -185,3 +185,22 @@ function _polar_project_gpu!(q::CuArray{T, 3}) where {T}
     end
     return q
 end
+
+# In-place Cholesky-QR orthogonalization: Q = A * R⁻¹ where A'A = R'R.
+# Cholesky factor R has positive diagonal, matching CPU's sign-corrected Householder QR.
+function _cholesky_qr_gpu!(A::CuArray{T, 3}) where {T}
+    batch = size(A, 3)
+
+    # Gram matrix G = A'A (k×k×batch where A is n×k×batch)
+    G = CUDA.CUBLAS.gemm_strided_batched('C', 'N', A, A)
+
+    # Cholesky factorization: upper triangle of G becomes R where G = R'R
+    G_slices = [view(G, :, :, i) for i in 1:batch]
+    CUDA.CUSOLVER.potrfBatched!('U', G_slices)
+
+    # Right triangular solve: Q * R = A → Q = A * R⁻¹ (overwrites A with Q)
+    A_slices = [view(A, :, :, i) for i in 1:batch]
+    CUDA.CUBLAS.trsm_batched!('R', 'U', 'N', 'N', one(T), G_slices, A_slices)
+
+    return A
+end

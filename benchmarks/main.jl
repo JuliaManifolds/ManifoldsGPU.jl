@@ -7,7 +7,7 @@
 
 include(joinpath(@__DIR__, "utils.jl"))
 
-function _benchmark_extra_retractions(name::String, M; batch::Int, scale::Float32, t::Float32, samples::Int, seed::Int, point_type, methods)
+function _benchmark_extra_retractions(name::String, M; batch::Int, scale::Float32, t::Float32, samples::Int, seed::Int, point_type, methods, error_fn = nothing)
     data = _setup_data(M; batch = batch, scale = scale, seed = seed, point_type = point_type, use_power_manifold = true)
     manifold_label = "PowerManifold($name, $batch)"
     results = NamedTuple[]
@@ -17,7 +17,7 @@ function _benchmark_extra_retractions(name::String, M; batch::Int, scale::Float3
     println()
 
     for method in methods
-        push!(results, _benchmark_retraction(method; MP = data.MB, p_cpu = data.p_cpu, X_cpu = data.X_cpu, p_gpu = data.p_gpu, X_gpu = data.X_gpu, t = t, samples = samples, manifold_label = manifold_label))
+        push!(results, _benchmark_retraction(method; MP = data.MB, p_cpu = data.p_cpu, X_cpu = data.X_cpu, p_gpu = data.p_gpu, X_gpu = data.X_gpu, t = t, samples = samples, manifold_label = manifold_label, error_fn = error_fn))
         println()
     end
 
@@ -44,15 +44,15 @@ function main()
 
     append!(all_results, benchmark_manifold("Rotations($n)", Rotations(n); batch = batch, scale = scale, samples = samples, seed = seed + 2, point_type = Float32))
 
-    append!(all_results, _benchmark_extra_retractions("Rotations($n)", Rotations(n); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 2, point_type = Float32, methods = [PolarRetraction()]))
+    append!(all_results, _benchmark_extra_retractions("Rotations($n)", Rotations(n); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 2, point_type = Float32, methods = [PolarRetraction(), QRRetraction()]))
 
     append!(all_results, benchmark_manifold("UnitaryMatrices($n)", UnitaryMatrices(n); batch = batch, scale = scale, samples = samples, seed = seed + 3, point_type = ComplexF32))
 
     append!(all_results, benchmark_manifold("Grassmann($n, $k)", Grassmann(n, k); batch = batch, scale = scale, samples = samples, seed = seed + 4, point_type = Float32, exp_error_fn = _subspace_error))
 
-    append!(all_results, _benchmark_extra_retractions("Grassmann($n, $k)", Grassmann(n, k); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 4, point_type = Float32, methods = [PolarRetraction()]))
+    append!(all_results, _benchmark_extra_retractions("Grassmann($n, $k)", Grassmann(n, k); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 4, point_type = Float32, methods = [PolarRetraction(), QRRetraction()], error_fn = _subspace_error))
 
-    append!(all_results, _benchmark_extra_retractions("Stiefel($n, $k)", Stiefel(n, k); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 5, point_type = Float32, methods = [ExponentialRetraction(), PolarRetraction()]))
+    append!(all_results, _benchmark_extra_retractions("Stiefel($n, $k)", Stiefel(n, k); batch = batch, scale = scale, t = t, samples = samples, seed = seed + 5, point_type = Float32, methods = [ExponentialRetraction(), PolarRetraction(), QRRetraction()]))
 
     markdown_table = generate_markdown_summary_table(all_results)
     println("=== Markdown summary table ===")

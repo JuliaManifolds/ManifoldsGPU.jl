@@ -1,7 +1,7 @@
 name = "ManifoldsGPU"
 uuid = "007d1224-8888-47ee-87d0-87e096ff9b5b"
 version = "0.1.0-DEV"
-authors = ["Mateusz Baran <mateuszbaran89@gmail.com> and contributors"]
+authors = ["Mateusz Baran <mateuszbaran89@gmail.com>", "Shiwen An <sweynan@icloud.com>", "and contributors"]
 
 [deps]
 GPUArrays = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"

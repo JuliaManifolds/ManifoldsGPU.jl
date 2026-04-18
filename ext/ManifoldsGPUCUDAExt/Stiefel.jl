@@ -91,3 +91,25 @@ function ManifoldsBase.retract_fused!(
     ) where {T <: Real}
     return ManifoldsBase.retract_polar_fused!(M, q, p, X, t)
 end
+
+function ManifoldsBase.retract_qr_fused!(
+        ::PowerManifold{ℝ, <:Stiefel{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+        t::Number,
+    ) where {T <: Real}
+    q .= p .+ t .* X
+    return _cholesky_qr_gpu!(q)
+end
+
+function ManifoldsBase.retract_fused!(
+        M::PowerManifold{ℝ, <:Stiefel{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        q::CuArray{T, 3},
+        p::CuArray{T, 3},
+        X::CuArray{T, 3},
+        t::Number,
+        ::QRRetraction,
+    ) where {T <: Real}
+    return ManifoldsBase.retract_qr_fused!(M, q, p, X, t)
+end
