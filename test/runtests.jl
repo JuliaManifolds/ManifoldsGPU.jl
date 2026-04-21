@@ -26,4 +26,6 @@ using GPUArrays
     else
         @info "CUDA not available, skipping CUDA tests"
     end
+
+    include(joinpath(@__DIR__, "test_aqua.jl"))
 end
