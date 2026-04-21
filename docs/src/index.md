@@ -6,7 +6,6 @@ ManifoldsGPU.ManifoldsGPU
 
 ## Benchmarks
 
-=== Markdown summary table ===
 Device: NVIDIA GeForce RTX 5070 Ti, eltype: Float32/ComplexF32
 
 | Manifold | Operation | CPU median [ms] | GPU median [ms] | Speedup CPU/GPU | Error |
