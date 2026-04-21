@@ -55,16 +55,16 @@ end
 
 function ManifoldsBase.project!(
         ::PowerManifold{ℝ, <:Sphere{ℝ}, <:Tuple, ArrayPowerRepresentation},
-    Y::CuArray{T},
-    p::CuArray{T},
-    X::CuArray{T},
+        Y::CuArray{T},
+        p::CuArray{T},
+        X::CuArray{T},
     ) where {T <: Real}
     Y .= X .- p .* sum(p .* X; dims = 1)
     return Y
 end
 
 function ManifoldsBase.project!(
-    ::PowerManifold{ℝ, <:Sphere{ℝ}, <:Tuple, ArrayPowerRepresentation},
+        ::PowerManifold{ℝ, <:Sphere{ℝ}, <:Tuple, ArrayPowerRepresentation},
         q::CuArray{T},
         p::CuArray{T},
     ) where {T <: Real}
