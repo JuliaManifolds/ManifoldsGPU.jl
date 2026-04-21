@@ -1,0 +1,19 @@
+[deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+GPUArrays = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"
+JLArrays = "27aeb0d3-9eb9-45fb-866b-73c2ecf80fcb"
+ManifoldsGPU = "007d1224-8888-47ee-87d0-87e096ff9b5b"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+ManifoldsGPU = {path = ".."}
+
+[compat]
+Aqua = "0.8"
+CUDA = "5.9.6"
+GPUArrays = "11"
+JLArrays = "0.3"
+Test = "1.10"
+julia = "1.10"
