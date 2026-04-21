@@ -8,37 +8,38 @@ ManifoldsGPU.ManifoldsGPU
 
 === Markdown summary table ===
 Device: NVIDIA GeForce RTX 5070 Ti, eltype: Float32/ComplexF32
+
 | Manifold | Operation | CPU median [ms] | GPU median [ms] | Speedup CPU/GPU | Error |
 | --- | --- | ---: | ---: | ---: | ---: |
-| Euclidean(32, 16, 2048) | exp | 0.34 | 0.17 | 2.07 | 0.0 |
-| Euclidean(32, 16, 2048) | log! | 0.34 | 0.17 | 2.03 | 0.0 |
-| Euclidean(32, 16, 2048) | inner | 0.19 | 0.13 | 1.42 | 0.0 |
-| Euclidean(32, 16, 2048) | norm | 0.12 | 0.16 | 0.74 | 8.423e-8 |
-| Euclidean(32, 16, 2048) | project! | 0.23 | 0.13 | 1.76 | 0.0 |
-| PowerManifold(Sphere(31), 2048) | exp | 0.05 | 36.49 | 0.0 | 6.877e-8 |
-| PowerManifold(Sphere(31), 2048) | log! | 0.09 | 68.95 | 0.0 | 4.262e-8 |
-| PowerManifold(Sphere(31), 2048) | inner | 0.02 | 0.12 | 0.12 | 6.837e-7 |
-| PowerManifold(Sphere(31), 2048) | norm | 0.02 | 0.13 | 0.15 | 0.0 |
-| PowerManifold(Sphere(31), 2048) | project! | 0.03 | 34.91 | 0.0 | 2.813e-8 |
-| PowerManifold(Rotations(32), 2048) | exp | 36.83 | 2.35 | 15.68 | 2.594e-6 |
-| PowerManifold(Rotations(32), 2048) | log! | 561.36 | 67.61 | 8.3 | 9.157e-5 |
-| PowerManifold(Rotations(32), 2048) | inner | 0.41 | 0.14 | 2.85 | 4.508e-6 |
-| PowerManifold(Rotations(32), 2048) | norm | 1.32 | 0.14 | 9.64 | 1.109e-6 |
-| PowerManifold(Rotations(32), 2048) | project! | 20.33 | 0.22 | 93.02 | 3.644e-7 |
-| PowerManifold(Rotations(32), 2048) | retract_fused!(PolarRetraction) | 116.77 | 4.82 | 24.24 | 2.555e-6 |
-| PowerManifold(Rotations(32), 2048) | retract_fused!(QRRetraction) | 90.92 | 0.85 | 106.99 | 3.204e-7 |
-| PowerManifold(UnitaryMatrices(32), 2048) | exp | 86.44 | 7.65 | 11.3 | 1.957e-6 |
-| PowerManifold(UnitaryMatrices(32), 2048) | log! | 728.19 | 70.03 | 10.4 | 0.0001844 |
-| PowerManifold(UnitaryMatrices(32), 2048) | inner | 0.78 | 52.19 | 0.02 | 5.979e-5 |
-| PowerManifold(UnitaryMatrices(32), 2048) | norm | 1.76 | 41.09 | 0.04 | 1.516e-6 |
-| PowerManifold(UnitaryMatrices(32), 2048) | project! | 31.94 | 0.36 | 89.84 | 5.512e-7 |
-| PowerManifold(Grassmann(32, 16), 2048) | exp | 69.47 | 5.23 | 13.27 | 7.023e-5 |
-| PowerManifold(Grassmann(32, 16), 2048) | log! | 57.7 | 3.42 | 16.85 | 2.332e-5 |
-| PowerManifold(Grassmann(32, 16), 2048) | inner | 0.2 | 0.12 | 1.58 | 4.957e-7 |
-| PowerManifold(Grassmann(32, 16), 2048) | norm | 0.79 | 0.13 | 6.18 | 2.772e-7 |
-| PowerManifold(Grassmann(32, 16), 2048) | project! | 1.03 | 0.19 | 5.31 | 1.303e-7 |
-| PowerManifold(Grassmann(32, 16), 2048) | retract_fused!(PolarRetraction) | 41.38 | 2.75 | 15.06 | 0.0001873 |
-| PowerManifold(Grassmann(32, 16), 2048) | retract_fused!(QRRetraction) | 17.85 | 0.7 | 25.33 | 4.623e-5 |
-| PowerManifold(Stiefel(32, 16), 2048) | exp(ExponentialRetraction) | 71.95 | 3.65 | 19.71 | 1.164e-6 |
-| PowerManifold(Stiefel(32, 16), 2048) | retract_fused!(PolarRetraction) | 43.03 | 3.06 | 14.07 | 1.37e-6 |
-| PowerManifold(Stiefel(32, 16), 2048) | retract_fused!(QRRetraction) | 18.38 | 0.71 | 25.88 | 1.885e-7 |
+| Euclidean(32, 16, 2048) | exp | 0.35 | 0.17 | 2.06 | 0.0 |
+| Euclidean(32, 16, 2048) | log! | 0.35 | 0.17 | 2.05 | 0.0 |
+| Euclidean(32, 16, 2048) | inner | 0.19 | 0.14 | 1.34 | 9.357e-8 |
+| Euclidean(32, 16, 2048) | norm | 0.13 | 0.16 | 0.83 | 8.423e-8 |
+| Euclidean(32, 16, 2048) | project! | 0.23 | 0.12 | 1.89 | 0.0 |
+| PowerManifold(Sphere(31), 2048) | exp | 0.05 | 0.14 | 0.35 | 7.092e-8 |
+| PowerManifold(Sphere(31), 2048) | log! | 0.08 | 0.37 | 0.23 | 5.125e-8 |
+| PowerManifold(Sphere(31), 2048) | inner | 0.02 | 0.13 | 0.14 | 5.86e-7 |
+| PowerManifold(Sphere(31), 2048) | norm | 0.02 | 0.13 | 0.15 | 1.064e-7 |
+| PowerManifold(Sphere(31), 2048) | project! | 0.03 | 0.15 | 0.18 | 2.819e-8 |
+| PowerManifold(Rotations(32), 2048) | exp | 36.19 | 2.35 | 15.38 | 2.594e-6 |
+| PowerManifold(Rotations(32), 2048) | log! | 565.72 | 74.44 | 7.6 | 9.157e-5 |
+| PowerManifold(Rotations(32), 2048) | inner | 0.41 | 0.25 | 1.65 | 4.708e-6 |
+| PowerManifold(Rotations(32), 2048) | norm | 1.36 | 0.14 | 9.53 | 1.109e-6 |
+| PowerManifold(Rotations(32), 2048) | project! | 20.46 | 0.22 | 91.22 | 3.644e-7 |
+| PowerManifold(Rotations(32), 2048) | retract_fused!(PolarRetraction) | 115.51 | 4.89 | 23.62 | 2.555e-6 |
+| PowerManifold(Rotations(32), 2048) | retract_fused!(QRRetraction) | 90.11 | 0.83 | 108.95 | 3.204e-7 |
+| PowerManifold(UnitaryMatrices(32), 2048) | exp | 85.89 | 8.07 | 10.64 | 1.957e-6 |
+| PowerManifold(UnitaryMatrices(32), 2048) | log! | 729.57 | 69.89 | 10.44 | 0.0001844 |
+| PowerManifold(UnitaryMatrices(32), 2048) | inner | 0.83 | 56.26 | 0.01 | 5.979e-5 |
+| PowerManifold(UnitaryMatrices(32), 2048) | norm | 1.74 | 44.17 | 0.04 | 1.516e-6 |
+| PowerManifold(UnitaryMatrices(32), 2048) | project! | 31.42 | 0.35 | 90.36 | 5.512e-7 |
+| PowerManifold(Grassmann(32, 16), 2048) | exp | 69.72 | 5.27 | 13.22 | 7.023e-5 |
+| PowerManifold(Grassmann(32, 16), 2048) | log! | 57.99 | 3.36 | 17.27 | 2.332e-5 |
+| PowerManifold(Grassmann(32, 16), 2048) | inner | 0.2 | 0.13 | 1.54 | 8.056e-7 |
+| PowerManifold(Grassmann(32, 16), 2048) | norm | 0.81 | 0.14 | 5.95 | 3.696e-7 |
+| PowerManifold(Grassmann(32, 16), 2048) | project! | 1.0 | 0.23 | 4.45 | 1.303e-7 |
+| PowerManifold(Grassmann(32, 16), 2048) | retract_fused!(PolarRetraction) | 40.67 | 2.99 | 13.59 | 0.0001873 |
+| PowerManifold(Grassmann(32, 16), 2048) | retract_fused!(QRRetraction) | 17.84 | 0.72 | 24.63 | 4.623e-5 |
+| PowerManifold(Stiefel(32, 16), 2048) | exp(ExponentialRetraction) | 70.99 | 3.56 | 19.91 | 1.164e-6 |
+| PowerManifold(Stiefel(32, 16), 2048) | retract_fused!(PolarRetraction) | 43.66 | 2.87 | 15.21 | 1.37e-6 |
+| PowerManifold(Stiefel(32, 16), 2048) | retract_fused!(QRRetraction) | 18.28 | 0.71 | 25.89 | 1.885e-7 |
