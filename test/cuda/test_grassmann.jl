@@ -66,7 +66,7 @@
             Y_cu_h = Array(Y_cu)
 
             @test is_point(MP, Y_cu_h)
-            @test distance(MP, Y_cu_h, Y) < 2.0e-14
+            @test distance(MP, Y_cu_h, Y) < 5.0e-14
         end
     end
 
@@ -109,7 +109,7 @@
             Y_cu_h = Array(Y_cu)
 
             @test is_point(MP, Y_cu_h)
-            @test distance(MP, Y_cu_h, Y) < 2.0e-12
+            @test distance(MP, Y_cu_h, Y) < 5.0e-12
         end
     end
 

@@ -38,7 +38,7 @@ function ManifoldsBase.log!(
     X_regular = (q .- cosθ .* p) ./ Manifolds.usinc.(θ)
 
     antipodal = abs.(cosθ .+ one(T)) .<= sqrt(eps(T))
-    basis = CUDA.zeros(T, size(p))
+    basis = CUDACore.zeros(T, size(p))
     basis[1, :] .= one(T)
     if size(p, 1) > 1
         p1_is_one = abs.(p[1:1, :] .- one(T)) .<= sqrt(eps(T))

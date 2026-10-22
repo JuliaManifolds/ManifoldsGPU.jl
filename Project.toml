@@ -1,6 +1,6 @@
 name = "ManifoldsGPU"
 uuid = "007d1224-8888-47ee-87d0-87e096ff9b5b"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Mateusz Baran <mateuszbaran89@gmail.com>", "Shiwen An <sweynan@icloud.com>", "and contributors"]
 
 [workspace]
@@ -13,15 +13,19 @@ Manifolds = "1cead3c2-87b3-11e9-0ccd-23c62b72b94e"
 ManifoldsBase = "3362f125-f0bb-47a3-aa74-596ffd7ef2fb"
 
 [weakdeps]
-CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+CUDACore = "bd0ed864-bdfe-4181-a5ed-ce625a5fdea2"
+cuBLAS = "182d3088-87b7-4494-8cad-fc6afaa545bc"
+cuSOLVER = "887afef0-6a32-4de5-add4-7827692ba8fc"
 
 [extensions]
-ManifoldsGPUCUDAExt = "CUDA"
+ManifoldsGPUCUDAExt = ["CUDACore", "cuBLAS", "cuSOLVER"]
 
 [compat]
-CUDA = "5.9.6"
+CUDACore = "6"
 LinearAlgebra = "1.10"
 ManifoldDiff = "0.4.5"
 Manifolds = "0.11.12"
 ManifoldsBase = "2.3.1"
+cuBLAS = "6"
+cuSOLVER = "6"
 julia = "1.10"

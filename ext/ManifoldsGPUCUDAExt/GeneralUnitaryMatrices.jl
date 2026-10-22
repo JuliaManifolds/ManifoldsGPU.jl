@@ -7,7 +7,7 @@ function ManifoldsBase.exp!(
         X::CuArray{T, 3},
     ) where {T <: Number}
     E = _matrix_exp_gpu(X)
-    q .= CUDA.CUBLAS.gemm_strided_batched('N', 'N', p, E)
+    q .= cuBLAS.gemm_strided_batched('N', 'N', p, E)
     return q
 end
 
@@ -35,7 +35,7 @@ function ManifoldsBase.retract_polar_fused!(
         X::CuArray{T, 3},
         t::Number,
     ) where {T <: Number}
-    q .= p .+ CUDA.CUBLAS.gemm_strided_batched('N', 'N', p, T(t) .* X)
+    q .= p .+ cuBLAS.gemm_strided_batched('N', 'N', p, T(t) .* X)
 
     # NOTE: This fallback block is intentionally non-differentiable.
     # retract! functions are not differentiated through directly.
@@ -61,7 +61,7 @@ function ManifoldsBase.retract_qr_fused!(
         t::Number,
     ) where {T <: Number}
     q .= p
-    CUDA.CUBLAS.gemm_strided_batched!('N', 'N', T(t), p, X, one(T), q)
+    cuBLAS.gemm_strided_batched!('N', 'N', T(t), p, X, one(T), q)
     return _cholesky_qr_gpu!(q)
 end
 
@@ -103,8 +103,8 @@ function ManifoldsBase.project!(
         p::CuArray{T, 3},
         X::CuArray{T, 3},
     ) where {T <: Number}
-    A = CUDA.CUBLAS.gemm_strided_batched('C', 'N', p, X)    # p' * X
-    B = CUDA.CUBLAS.gemm_strided_batched('C', 'N', X, p)    # X' * p
+    A = cuBLAS.gemm_strided_batched('C', 'N', p, X)    # p' * X
+    B = cuBLAS.gemm_strided_batched('C', 'N', X, p)    # X' * p
     Y .= (A .- B) ./ 2
     return Y
 end
@@ -115,7 +115,7 @@ function ManifoldsBase.log!(
         p::CuArray{T, 3},
         q::CuArray{T, 3},
     ) where {T <: Real}
-    U = CUDA.CUBLAS.gemm_strided_batched('T', 'N', p, q)
+    U = cuBLAS.gemm_strided_batched('T', 'N', p, q)
     X .= _matrix_log_gpu(U)
     X .= (X .- permutedims(X, (2, 1, 3))) ./ T(2)
     return X
@@ -127,7 +127,7 @@ function ManifoldsBase.log!(
         p::CuArray{T, 3},
         q::CuArray{T, 3},
     ) where {T <: Complex}
-    U = CUDA.CUBLAS.gemm_strided_batched('C', 'N', p, q)
+    U = cuBLAS.gemm_strided_batched('C', 'N', p, q)
     X .= _matrix_log_gpu(U)
     X .= (X .- conj.(permutedims(X, (2, 1, 3)))) ./ T(2)
     return X
