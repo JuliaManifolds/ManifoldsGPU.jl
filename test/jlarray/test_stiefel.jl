@@ -7,45 +7,48 @@ using GPUArrays
 @testset "Stiefel JLArray" begin
     GPUArrays.allowscalar(false)
 
-    # Stiefel retract! (Polar, Float64)
-    @testset "Stiefel retract Polar Float64" begin
-        Random.seed!(42)
+    if VERSION < v"1.13"
+        # LinearAlgebra svd! has scalar indexing in Julia v1.13 and later
+        # Stiefel retract! (Polar, Float64)
+        @testset "Stiefel retract Polar Float64" begin
+            Random.seed!(42)
 
-        M = Stiefel(8, 4)
+            M = Stiefel(8, 4)
 
-        for _ in 1:3
-            p = rand(M)
-            X = 0.25 * rand(M; vector_at = p)
-            q_cpu = retract(M, p, X, PolarRetraction())
+            for _ in 1:3
+                p = rand(M)
+                X = 0.25 * rand(M; vector_at = p)
+                q_cpu = retract(M, p, X, PolarRetraction())
 
-            p_jl = JLArray(p)
-            X_jl = JLArray(X)
-            q_jl = retract(M, p_jl, X_jl, PolarRetraction())
-            q_jl_h = Array(q_jl)
+                p_jl = JLArray(p)
+                X_jl = JLArray(X)
+                q_jl = retract(M, p_jl, X_jl, PolarRetraction())
+                q_jl_h = Array(q_jl)
 
-            @test is_point(M, q_jl_h)
-            @test isapprox(q_jl_h, q_cpu; atol = 2.0e-14, rtol = 2.0e-14)
+                @test is_point(M, q_jl_h)
+                @test isapprox(q_jl_h, q_cpu; atol = 2.0e-14, rtol = 2.0e-14)
+            end
         end
-    end
 
-    # Stiefel retract! (Polar, Float32)
-    @testset "Stiefel retract Polar Float32" begin
-        Random.seed!(43)
+        # Stiefel retract! (Polar, Float32)
+        @testset "Stiefel retract Polar Float32" begin
+            Random.seed!(43)
 
-        M = Stiefel(8, 4)
+            M = Stiefel(8, 4)
 
-        for _ in 1:3
-            p = Float32.(rand(M))
-            X = Float32(0.25) .* Float32.(rand(M; vector_at = p))
-            q_cpu = retract(M, p, X, PolarRetraction())
+            for _ in 1:3
+                p = Float32.(rand(M))
+                X = Float32(0.25) .* Float32.(rand(M; vector_at = p))
+                q_cpu = retract(M, p, X, PolarRetraction())
 
-            p_jl = JLArray(p)
-            X_jl = JLArray(X)
-            q_jl = retract(M, p_jl, X_jl, PolarRetraction())
-            q_jl_h = Array(q_jl)
+                p_jl = JLArray(p)
+                X_jl = JLArray(X)
+                q_jl = retract(M, p_jl, X_jl, PolarRetraction())
+                q_jl_h = Array(q_jl)
 
-            @test is_point(M, q_jl_h)
-            @test isapprox(q_jl_h, q_cpu; atol = 2.0f-5, rtol = 2.0f-5)
+                @test is_point(M, q_jl_h)
+                @test isapprox(q_jl_h, q_cpu; atol = 2.0f-5, rtol = 2.0f-5)
+            end
         end
     end
 

@@ -25,13 +25,13 @@ function _matrix_exp_gpu(A::CuArray{T, 3}) where {T <: Real}
     E = copy(I_batch)
     term = copy(I_batch)
     for j in 1:order
-        term = CUDA.CUBLAS.gemm_strided_batched('N', 'N', term, As)
+        term = cuBLAS.gemm_strided_batched('N', 'N', term, As)
         term ./= T(j)
         E .+= term
     end
 
     for _ in 1:s
-        E = CUDA.CUBLAS.gemm_strided_batched('N', 'N', E, E)
+        E = cuBLAS.gemm_strided_batched('N', 'N', E, E)
     end
 
     return E
@@ -56,13 +56,13 @@ function _matrix_exp_gpu(A::CuArray{T, 3}) where {T <: Complex}
     E = copy(I_batch)
     term = copy(I_batch)
     for j in 1:order
-        term = CUDA.CUBLAS.gemm_strided_batched('N', 'N', term, As)
+        term = cuBLAS.gemm_strided_batched('N', 'N', term, As)
         term ./= T(j)
         E .+= term
     end
 
     for _ in 1:s
-        E = CUDA.CUBLAS.gemm_strided_batched('N', 'N', E, E)
+        E = cuBLAS.gemm_strided_batched('N', 'N', E, E)
     end
 
     return E
@@ -100,10 +100,10 @@ end
 # Batched matrix inverse via LU factorization (used by Denman-Beavers)
 function _batched_inv_gpu(A::CuArray{T, 3}) where {T}
     A_lu = copy(A)
-    pivot = CUDA.zeros(Int32, size(A, 1), size(A, 3))
-    CUDA.CUBLAS.getrf_strided_batched!(A_lu, pivot)
+    pivot = CUDACore.zeros(Int32, size(A, 1), size(A, 3))
+    cuBLAS.getrf_strided_batched!(A_lu, pivot)
     C = similar(A)
-    CUDA.CUBLAS.getri_strided_batched!(A_lu, C, pivot)
+    cuBLAS.getri_strided_batched!(A_lu, C, pivot)
     return C
 end
 
@@ -142,7 +142,7 @@ function _matrix_log_gpu(
     L = copy(X_mat)
     term = copy(X_mat)
     for j in 2:taylor_order
-        term = CUDA.CUBLAS.gemm_strided_batched('N', 'N', term, X_mat)
+        term = cuBLAS.gemm_strided_batched('N', 'N', term, X_mat)
         sign_j = iseven(j) ? T(-1) : T(1)
         L .+= sign_j .* term ./ T(j)
     end
@@ -163,10 +163,10 @@ end
 # gesvdj! returns full U (m×m), gesvda! returns thin U (m×k) — use U[:, 1:k, :] for both.
 function _batched_svd_gpu(A::CuArray{T, 3}) where {T}
     try
-        return CUDA.CUSOLVER.gesvdj!('V', copy(A))
+        return cuSOLVER.gesvdj!('V', copy(A))
     catch e
         e isa ArgumentError || rethrow()
-        return CUDA.CUSOLVER.gesvda!('V', copy(A))
+        return cuSOLVER.gesvda!('V', copy(A))
     end
 end
 
@@ -174,14 +174,14 @@ end
 # Same gesvdj!/gesvda! fallback as _batched_svd_gpu.
 function _polar_project_gpu!(q::CuArray{T, 3}) where {T}
     try
-        U, _, V = CUDA.CUSOLVER.gesvdj!('V', q)
+        U, _, V = cuSOLVER.gesvdj!('V', q)
         k = min(size(U, 2), size(V, 1))
         U_thin = @view U[:, 1:k, :]
-        q .= CUDA.CUBLAS.gemm_strided_batched('N', 'C', U_thin, V)
+        q .= cuBLAS.gemm_strided_batched('N', 'C', U_thin, V)
     catch e
         e isa ArgumentError || rethrow()
-        U, _, V = CUDA.CUSOLVER.gesvda!('V', q)
-        q .= CUDA.CUBLAS.gemm_strided_batched('N', 'C', U, V)
+        U, _, V = cuSOLVER.gesvda!('V', q)
+        q .= cuBLAS.gemm_strided_batched('N', 'C', U, V)
     end
     return q
 end
@@ -192,15 +192,15 @@ function _cholesky_qr_gpu!(A::CuArray{T, 3}) where {T}
     batch = size(A, 3)
 
     # Gram matrix G = A'A (k×k×batch where A is n×k×batch)
-    G = CUDA.CUBLAS.gemm_strided_batched('C', 'N', A, A)
+    G = cuBLAS.gemm_strided_batched('C', 'N', A, A)
 
     # Cholesky factorization: upper triangle of G becomes R where G = R'R
     G_slices = [view(G, :, :, i) for i in 1:batch]
-    CUDA.CUSOLVER.potrfBatched!('U', G_slices)
+    cuSOLVER.potrfBatched!('U', G_slices)
 
     # Right triangular solve: Q * R = A → Q = A * R⁻¹ (overwrites A with Q)
     A_slices = [view(A, :, :, i) for i in 1:batch]
-    CUDA.CUBLAS.trsm_batched!('R', 'U', 'N', 'N', one(T), G_slices, A_slices)
+    cuBLAS.trsm_batched!('R', 'U', 'N', 'N', one(T), G_slices, A_slices)
 
     return A
 end

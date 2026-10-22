@@ -3,7 +3,9 @@ module ManifoldsGPUCUDAExt
 using Manifolds
 using ManifoldsBase
 
-using CUDA
+using CUDACore
+using cuBLAS
+using cuSOLVER
 using LinearAlgebra: norm, dot
 
 import ManifoldsGPU: _matrix_log_gpu, _matrix_exp_gpu
